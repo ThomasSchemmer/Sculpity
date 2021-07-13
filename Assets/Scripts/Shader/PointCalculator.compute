@@ -1,0 +1,66 @@
+﻿#pragma kernel main
+#pragma kernel mainGroupOnly
+
+RWStructuredBuffer<float4> Points;
+RWStructuredBuffer<float3> debug;
+//relative offset, so 1 = one whole block
+float3 offset;
+float3 center;
+uint groupCount;
+uint ppA;
+float scale;
+
+//totalID: GroupID + GroupThreadID
+//threadID: inner ID (numthreads)
+//groupID: Outer ID (dispatch call)
+[numthreads(4, 4, 4)]
+void main(uint3 totalID : SV_DispatchThreadID, uint3 threadID : SV_GroupThreadID, uint3 groupID : SV_GroupID)
+{
+    uint3 amountPerGroup = uint3(ppA / groupCount, ppA / groupCount, ppA / groupCount);
+    uint3 amountPerThread = amountPerGroup / 4;
+
+    uint3 index = uint3(groupID.x * amountPerGroup.x, groupID.y * amountPerGroup.y, groupID.z * amountPerGroup.z);
+    index += uint3(threadID.x * amountPerThread.x, threadID.y * amountPerThread.y, threadID.z * amountPerThread.z);
+    debug[0] = amountPerGroup.x + amountPerThread / 10.0;
+
+    float3 maxPos = 1;
+    float maxMag = dot(maxPos, maxPos);
+    float p = (float)ppA;
+
+
+    for (uint z = index.z; z < index.z + amountPerThread.z; z++) {
+        for (uint y = index.y; y < index.y + amountPerThread.y; y++) {
+            for (uint x = index.x; x < index.x + amountPerThread.x; x++) {
+                uint i = z * ppA * ppA + y * ppA + x;
+                float3 pos = float3(x, y, z) / (p - 1) * scale + offset;
+                float mag = dot(pos, pos);
+
+                Points[i] = float4(
+                    pos,
+                    mag / (maxMag * 0.3));
+            }
+        }
+    }
+
+}
+
+[numthreads(1, 1, 1)]
+void mainGroupOnly(uint3 totalID : SV_DispatchThreadID, uint3 threadID : SV_GroupThreadID, uint3 groupID : SV_GroupID)
+{
+    uint3 amountPerGroup = uint3(ppA / groupCount, ppA / groupCount, ppA / groupCount);
+
+    uint3 index = uint3(groupID.x * amountPerGroup.x, groupID.y * amountPerGroup.y, groupID.z * amountPerGroup.z);
+    
+    float3 maxPos = 1;
+    float maxMag = dot(maxPos, maxPos);
+    float p = (float)ppA;
+
+    uint i = index.z * ppA * ppA + index.y * ppA + index.x;
+    float3 pos = float3(index.x, index.y, index.z) / (p - 1) * scale + offset;
+    float mag = dot(pos, pos);
+
+    Points[i] = float4(
+        pos,
+        mag / (maxMag * 0.3));
+
+}

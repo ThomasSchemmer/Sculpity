@@ -1,0 +1,67 @@
+#pragma kernel CSMain
+#include "MarchTables.compute"
+
+struct Triangle {
+    float3 a;
+    float3 b;
+    float3 c;
+};
+
+AppendStructuredBuffer<Triangle> Triangles;
+RWStructuredBuffer<float4> Points;
+RWStructuredBuffer<float3> Debug;
+uint groupCount, ppA;
+float3 offset;
+float3 size;
+
+float3 GetVertexOnEdge(float3 centerIndex, int index, int i) {
+    int3 i0 = centerIndex + positions[edges[table[index][i]].x];
+    int3 i1 = centerIndex + positions[edges[table[index][i]].y];
+
+    uint pi0 = i0.z * ppA * ppA + i0.y * ppA + i0.x;
+    uint pi1 = i1.z * ppA * ppA + i1.y * ppA + i1.x;
+
+    float d = (0.5f - Points[pi0].w) / (Points[pi1].w - Points[pi0].w);
+    float3 p = Points[pi0].xyz + (Points[pi1].xyz - Points[pi0].xyz) * d;
+    return p;
+}
+
+void CreateCube(int ix, int iy, int iz) {
+    uint index = 0;
+    uint i;
+    float3 centerIndex = float3(ix + 0.5, iy + 0.5, iz + 0.5);
+
+    for (i = 0; i < positions.Length; i++) {
+        int3 posIndex = centerIndex + positions[i];
+        uint pointIndex = posIndex.z * ppA * ppA + posIndex.y * ppA + posIndex.x;
+        index += Points[pointIndex].w > 0.5 ? 1 << i : 0;
+
+    }
+    float p = ppA - 1;
+    //Debug[iz * p * p + iy * p + ix] = index;
+
+    for (i = 0; i < 16;) {
+        if (table[index][i] == -1)
+            break;
+
+        Triangle tri;
+        tri.a = GetVertexOnEdge(centerIndex, index, i + 0);
+        tri.b = GetVertexOnEdge(centerIndex, index, i + 1);
+        tri.c = GetVertexOnEdge(centerIndex, index, i + 2);
+        Triangles.Append(tri);
+        i += 3;
+    }
+}
+
+[numthreads(1, 1, 1)]
+void CSMain (uint3 totalID : SV_DispatchThreadID, uint3 threadID : SV_GroupThreadID, uint3 groupID : SV_GroupID)
+{
+    uint3 index = uint3(
+        groupID.x + offset.x, 
+        groupID.y + offset.y, 
+        groupID.z + offset.z
+    );
+    Debug[0] = offset;
+
+    CreateCube(index.x, index.y, index.z);
+}
