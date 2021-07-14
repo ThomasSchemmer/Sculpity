@@ -8,9 +8,10 @@ struct Triangle {
 };
 
 AppendStructuredBuffer<Triangle> Triangles;
+RWStructuredBuffer<float4> concatTriangles;
 RWStructuredBuffer<float4> Points;
 RWStructuredBuffer<float3> Debug;
-uint groupCount, ppA;
+uint groupCount, ppA, amountOfTriangles;
 float3 offset;
 float3 size;
 
@@ -38,7 +39,6 @@ void CreateCube(int ix, int iy, int iz) {
 
     }
     float p = ppA - 1;
-    //Debug[iz * p * p + iy * p + ix] = index;
 
     for (i = 0; i < 16;) {
         if (table[index][i] == -1)
@@ -65,3 +65,4 @@ void CSMain (uint3 totalID : SV_DispatchThreadID, uint3 threadID : SV_GroupThrea
 
     CreateCube(index.x, index.y, index.z);
 }
+

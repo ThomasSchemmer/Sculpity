@@ -21,10 +21,10 @@ void main(uint3 totalID : SV_DispatchThreadID, uint3 threadID : SV_GroupThreadID
 
     uint3 index = uint3(groupID.x * amountPerGroup.x, groupID.y * amountPerGroup.y, groupID.z * amountPerGroup.z);
     index += uint3(threadID.x * amountPerThread.x, threadID.y * amountPerThread.y, threadID.z * amountPerThread.z);
-    debug[0] = amountPerGroup.x + amountPerThread / 10.0;
 
+    float3 center = float3(0.5, 0.5, 0.5);
     float3 maxPos = 1;
-    float maxMag = dot(maxPos, maxPos);
+    float maxMag = dot(maxPos - center, maxPos - center);
     float p = (float)ppA;
 
 
@@ -33,7 +33,7 @@ void main(uint3 totalID : SV_DispatchThreadID, uint3 threadID : SV_GroupThreadID
             for (uint x = index.x; x < index.x + amountPerThread.x; x++) {
                 uint i = z * ppA * ppA + y * ppA + x;
                 float3 pos = float3(x, y, z) / (p - 1) * scale + offset;
-                float mag = dot(pos, pos);
+                float mag = dot(pos - center, pos - center);
 
                 Points[i] = float4(
                     pos,

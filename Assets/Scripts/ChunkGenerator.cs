@@ -8,11 +8,14 @@ public class ChunkGenerator : MonoBehaviour
 {
     public ComputeShader shader;
 
-    private ComputeBuffer pointsBuffer, triangleBuffer, triCountBuffer, debugBuffer;
-    private int kernel;
     public Vector3 size;
     //in ppA
     public Vector3 offset;
+
+    private ComputeBuffer pointsBuffer, triangleBuffer, triCountBuffer, debugBuffer;
+    private int kernel;
+    private Material mat;
+    private int triangleCount;
 
     struct Triangle {
         public Vector3 a;
@@ -37,6 +40,8 @@ public class ChunkGenerator : MonoBehaviour
         Debug.Log("Generating");
         if (pointsBuffer == null)
             SetupShaders();
+        if (!mat)
+            mat = GetComponent<MeshRenderer>().material;
         shader.SetInt("ppA", PointGenerator.pointsPerAxis);
         shader.SetVector("size", size);
         shader.SetVector("offset", offset);
@@ -48,8 +53,15 @@ public class ChunkGenerator : MonoBehaviour
         ComputeBuffer.CopyCount(triangleBuffer, triCountBuffer, 0);
         int[] triCount = { 0 };
         triCountBuffer.GetData(triCount);
-        Triangle[] triangles = new Triangle[triCount[0]];
-        triangleBuffer.GetData(triangles, 0, 0, triCount[0]);
+        triangleCount = triCount[0];
+        mat.SetBuffer("_Buffer", triangleBuffer);
+        Vector3[] triangles = new Vector3[triangleCount];
+        triangleBuffer.GetData(triangles);
+
+
+        /*
+        Triangle[] triangles = new Triangle[triangleCount];
+        triangleBuffer.GetData(triangles, 0, 0, triangleCount);
 
         Vector3[] debug = new Vector3[1];
       //  debugBuffer.GetData(debug, 0, 0, 1);
@@ -57,14 +69,21 @@ public class ChunkGenerator : MonoBehaviour
         Vector4[] points = new Vector4[8];
       //  pointsBuffer.GetData(points);
 
-        GenerateMesh(triangles);
+       // GenerateMesh(triangles);
+        */
+    }
+
+    private void OnRenderObject() {
+        mat.SetPass(0);
+        mat.SetBuffer("_Buffer", triangleBuffer);
+        Graphics.DrawProceduralNow(MeshTopology.Points, triangleCount);
     }
 
     private void SetupShaders() {
 
         triangleBuffer = new ComputeBuffer(
-            GetBufferSize(), 
-            sizeof(float) * 3 * 3, 
+            GetBufferSize() * 3, 
+            sizeof(float) * 3, 
             ComputeBufferType.Append
         );
         triCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.IndirectArguments);
