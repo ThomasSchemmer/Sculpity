@@ -96,6 +96,7 @@ void CSIntersections (uint3 totalID : SV_DispatchThreadID, uint3 threadID : SV_G
     for (int i = index; i < index + amount; i++) {
         float t = Intersects(i);
         if (t >= 0) {
+            Debug[0] = float4(t, 0, 0, 0);
             Intersections.Append(origin + t * direction);
         }
     }

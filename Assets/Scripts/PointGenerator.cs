@@ -13,9 +13,9 @@ public class PointGenerator : MonoBehaviour
     public Vector3 center = Vector3.one * 0.5f;
     [HideInInspector]
     public ComputeBuffer pointsBuffer, debugBuffer;
-    public static int groupCount = 4;
+    public static int groupCount = 5;
     public static bool isDirty;
-    public static int pointsPerAxis = 20; 
+    public static int pointsPerAxis = 40; 
 
 
     private float _scale;

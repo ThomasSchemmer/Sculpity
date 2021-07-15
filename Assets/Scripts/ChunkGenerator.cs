@@ -78,6 +78,7 @@ public class ChunkGenerator : MonoBehaviour
         shader.SetFloat("triangleCount", triangleCount);
         shader.SetBuffer(intersectKernel, "Intersections", intersectionsBuffer);
         shader.SetBuffer(intersectKernel, "Triangles", triangleBuffer);
+        shader.SetBuffer(intersectKernel, "Debug", debugBuffer);
         intersectionsBuffer.SetCounterValue(0);
 
         shader.Dispatch(intersectKernel, 1, 1, 1); 
@@ -85,6 +86,9 @@ public class ChunkGenerator : MonoBehaviour
         int[] intCountArr = { 0 };
         triCountBuffer.GetData(intCountArr);
         intersections = new Vector3[intCountArr[0]];
+        intersectionsBuffer.GetData(intersections);
+        Vector4[] debug = new Vector4[20];
+        debugBuffer.GetData(debug, 0, 0, 20);
     }
 
     private void OnDrawGizmos() {
@@ -127,7 +131,7 @@ public class ChunkGenerator : MonoBehaviour
         debugBuffer = new ComputeBuffer(GetBufferSize(), sizeof(float) * 4);
         intersectionsBuffer = new ComputeBuffer(
             GetBufferSize() / 3,
-            sizeof(float) * 3 * 3,
+            sizeof(float) * 3,
             ComputeBufferType.Append
         );
 
