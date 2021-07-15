@@ -3,11 +3,13 @@ Shader "Custom/TriangleShader"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        _Center("Center", Vector) = (0,0,0,0)
     }
     SubShader
     {
         Tags { "RenderType"="Opaque" }
         LOD 100
+        Cull Off
 
         Pass
         {
@@ -39,6 +41,7 @@ Shader "Custom/TriangleShader"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            float3 _Center;
 
             v2g vert(uint id : SV_VertexID)
             {
@@ -52,13 +55,16 @@ Shader "Custom/TriangleShader"
             void geo(point v2g input[1], inout TriangleStream<g2f> outStream) {
                 g2f o0, o1, o2;
                 uint id = (uint)input[0].id.x;
+                float3 pos0 = _Buffer[id].a - _Center;
+                float3 pos1 = _Buffer[id].b - _Center;
+                float3 pos2 = _Buffer[id].c - _Center;
+                float3 normal = (pos0 + pos1 + pos2) / 3;
+                float3 worldNormal = mul(unity_ObjectToWorld, float4(normal, 0));
+
                 o0.vertex = UnityObjectToClipPos(_Buffer[id].a);
                 o1.vertex = UnityObjectToClipPos(_Buffer[id].b);
                 o2.vertex = UnityObjectToClipPos(_Buffer[id].c);
 
-                float3 a = normalize(o0.vertex - o1.vertex);
-                float3 b = normalize(o2.vertex - o1.vertex);
-                float3 worldNormal = cross(a, b);
                 half nl = max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz));
                 o0.color = nl * _LightColor0;
                 o1.color = nl * _LightColor0;

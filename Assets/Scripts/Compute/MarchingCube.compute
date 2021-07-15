@@ -1,4 +1,5 @@
 #pragma kernel CSMain
+#pragma kernel CSIntersections
 #include "MarchTables.compute"
 
 struct Triangle {
@@ -7,13 +8,30 @@ struct Triangle {
     float3 c;
 };
 
-AppendStructuredBuffer<Triangle> Triangles;
-RWStructuredBuffer<float4> concatTriangles;
+RWStructuredBuffer<Triangle> Triangles;
+AppendStructuredBuffer<float3> Intersections;
 RWStructuredBuffer<float4> Points;
-RWStructuredBuffer<float3> Debug;
+RWStructuredBuffer<float4> Debug;
 uint groupCount, ppA, amountOfTriangles;
 float3 offset;
 float3 size;
+float3 origin;
+float3 direction;
+float triangleCount;
+
+float Det(float3 a, float3 b, float3 c) {
+    return dot(a, cross(b, c));
+}
+
+float Intersects(uint i) {
+    float3 e1 = Triangles[i].b - Triangles[i].a;
+    float3 e2 = Triangles[i].c - Triangles[i].a;
+    float ree = Det(direction, e1, e2);
+    float u = -Det(e2, origin - Triangles[i].a, direction) / ree;
+    float v = Det(e1, origin - Triangles[i].a, direction) / ree;
+    float t = -Det(origin - Triangles[i].a, e1, e2) / ree;
+    return (u >= 0 && v >= 0 && t >= 0 && (u + v) <= 1) ? t : -1;
+}
 
 float3 GetVertexOnEdge(float3 centerIndex, int index, int i) {
     int3 i0 = centerIndex + positions[edges[table[index][i]].x];
@@ -48,21 +66,38 @@ void CreateCube(int ix, int iy, int iz) {
         tri.a = GetVertexOnEdge(centerIndex, index, i + 0);
         tri.b = GetVertexOnEdge(centerIndex, index, i + 1);
         tri.c = GetVertexOnEdge(centerIndex, index, i + 2);
-        Triangles.Append(tri);
+        uint ti = Triangles.IncrementCounter();
+        Triangles[ti] = tri;
+        Debug[i] = float4(Triangles[ti].a, (float)ti);
+        Debug[i + 1] = float4(Triangles[ti].b, (float)ti);
+        Debug[i + 2] = float4(Triangles[ti].c, (float)ti);
         i += 3;
     }
 }
 
 [numthreads(1, 1, 1)]
-void CSMain (uint3 totalID : SV_DispatchThreadID, uint3 threadID : SV_GroupThreadID, uint3 groupID : SV_GroupID)
+void CSMain(uint3 totalID : SV_DispatchThreadID, uint3 threadID : SV_GroupThreadID, uint3 groupID : SV_GroupID)
 {
     uint3 index = uint3(
-        groupID.x + offset.x, 
-        groupID.y + offset.y, 
+        groupID.x + offset.x,
+        groupID.y + offset.y,
         groupID.z + offset.z
-    );
-    Debug[0] = offset;
+        );
 
     CreateCube(index.x, index.y, index.z);
+}
+
+[numthreads(32, 1, 1)]
+void CSIntersections (uint3 totalID : SV_DispatchThreadID, uint3 threadID : SV_GroupThreadID, uint3 groupID : SV_GroupID)
+{
+    int amount = ceil(triangleCount / 32.0);
+    int index = threadID.x * amount;
+
+    for (int i = index; i < index + amount; i++) {
+        float t = Intersects(i);
+        if (t >= 0) {
+            Intersections.Append(origin + t * direction);
+        }
+    }
 }
 

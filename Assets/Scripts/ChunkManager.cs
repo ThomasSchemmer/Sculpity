@@ -6,7 +6,7 @@ public class ChunkManager : MonoBehaviour
 {
     public Material mat;
     public ComputeShader shader;
-    private int split = 4;
+    private int split = 2;
 
     // Start is called before the first frame update
     void Start()

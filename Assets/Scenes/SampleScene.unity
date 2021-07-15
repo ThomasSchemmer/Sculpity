@@ -204,7 +204,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shader: {fileID: 7200000, guid: 8649cd4caccfbb3459fdb008e2ffb14a, type: 3}
-  scale: 1
+  scale: 0.69
   offset: {x: 0, y: 0, z: 0}
 --- !u!4 &224841659
 Transform:
@@ -346,7 +346,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0e023e685188d44b8b44d71ef9d33fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mat: {fileID: 2100000, guid: 90d8184fdbdb05d4491c3d4c6be0524f, type: 2}
+  mat: {fileID: 2100000, guid: 64809e5a76ac5974aa6152a8bbe5e2b9, type: 2}
   shader: {fileID: 7200000, guid: ab29f8be6b3e42f428ec88e6d122848f, type: 3}
 --- !u!4 &483225124
 Transform:
@@ -570,8 +570,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shader: {fileID: 7200000, guid: ab29f8be6b3e42f428ec88e6d122848f, type: 3}
-  size: {x: 14, y: 14, z: 14}
-  offset: {x: 0, y: 15, z: 0}
+  size: {x: 1, y: 1, z: 1}
+  offset: {x: 0, y: 0, z: 0}
 --- !u!4 &1327766305
 Transform:
   m_ObjectHideFlags: 0

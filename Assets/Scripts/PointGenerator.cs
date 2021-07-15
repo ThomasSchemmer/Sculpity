@@ -10,11 +10,12 @@ public class PointGenerator : MonoBehaviour
     [Range(0.1f, 10)]
     public float scale = 1;
     public Vector3 offset = new Vector3(0, 0, 0);
+    public Vector3 center = Vector3.one * 0.5f;
     [HideInInspector]
     public ComputeBuffer pointsBuffer, debugBuffer;
-    public static int groupCount = 10;
+    public static int groupCount = 4;
     public static bool isDirty;
-    public static int pointsPerAxis = 40; 
+    public static int pointsPerAxis = 20; 
 
 
     private float _scale;
@@ -87,6 +88,7 @@ public class PointGenerator : MonoBehaviour
         mat.SetBuffer("_Buffer", pointsBuffer);
         shader.SetFloat("scale", scale);
         shader.SetVector("offset", offset);
+        shader.SetVector("center", center);
         int c = onlyGroups ? pointsPerAxis : groupCount;
         float now = Time.time;
         shader.Dispatch(active, c, c, c);
