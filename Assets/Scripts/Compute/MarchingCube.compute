@@ -1,5 +1,6 @@
 #pragma kernel CSMain
 #pragma kernel CSIntersections
+#pragma kernel CSUpdate
 #include "MarchTables.compute"
 
 struct Triangle {
@@ -18,6 +19,8 @@ float3 size;
 float3 origin;
 float3 direction;
 float triangleCount;
+float brushSize, brushStrength;
+float3 brushPos;
 
 float Det(float3 a, float3 b, float3 c) {
     return dot(a, cross(b, c));
@@ -82,7 +85,7 @@ void CSMain(uint3 totalID : SV_DispatchThreadID, uint3 threadID : SV_GroupThread
         groupID.x + offset.x,
         groupID.y + offset.y,
         groupID.z + offset.z
-        );
+    );
 
     CreateCube(index.x, index.y, index.z);
 }
@@ -102,3 +105,19 @@ void CSIntersections (uint3 totalID : SV_DispatchThreadID, uint3 threadID : SV_G
     }
 }
 
+
+[numthreads(1, 1, 1)]
+void CSUpdate(uint3 totalID : SV_DispatchThreadID, uint3 threadID : SV_GroupThreadID, uint3 groupID : SV_GroupID)
+{
+    uint3 index = uint3(
+        groupID.x + offset.x,
+        groupID.y + offset.y,
+        groupID.z + offset.z
+        );
+    uint id = index.z * ppA * ppA + index.y * ppA + index.x;
+    float dis = distance(Points[id].xyz, brushPos);
+    float effect = 1 - min(dis / brushSize, 1);
+    Points[id].w = Points[id].w - effect / 10 * brushStrength;
+    Points[id].w = clamp(Points[id].w, -2, 2);
+    Debug[id] = float4(effect * brushStrength, effect, brushStrength, 0);
+}

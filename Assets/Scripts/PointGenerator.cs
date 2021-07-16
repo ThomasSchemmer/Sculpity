@@ -13,9 +13,9 @@ public class PointGenerator : MonoBehaviour
     public Vector3 center = Vector3.one * 0.5f;
     [HideInInspector]
     public ComputeBuffer pointsBuffer, debugBuffer;
-    public static int groupCount = 5;
+    public static int groupCount = 10;
     public static bool isDirty;
-    public static int pointsPerAxis = 40; 
+    public static int pointsPerAxis = 100; 
 
 
     private float _scale;
@@ -59,6 +59,7 @@ public class PointGenerator : MonoBehaviour
         pointsBuffer.GetData(arr, 0, 0, 1);
         Vector3[] debug = new Vector3[1];
         debugBuffer.GetData(debug, 0, 0, 1);
+        mat.SetBuffer("_Buffer", pointsBuffer);
         Graphics.DrawProceduralNow(MeshTopology.Points, pointCount);
     }
 

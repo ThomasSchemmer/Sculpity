@@ -11,9 +11,10 @@ public class ChunkGenerator : MonoBehaviour
     public Vector3 size;
     //in ppA
     public Vector3 offset;
+    public Vector3Int id;
 
     private ComputeBuffer pointsBuffer, triangleBuffer, triCountBuffer, debugBuffer, intersectionsBuffer;
-    private int mainKernel, intersectKernel;
+    private int mainKernel, intersectKernel, updateKernel;
     private Material mat;
     private int triangleCount;
     private Vector3[] intersections;
@@ -25,9 +26,10 @@ public class ChunkGenerator : MonoBehaviour
         public Vector3 c;
     };
 
-    public void Setup(Vector3 size, Vector3 offset) {
+    public void Setup(Vector3 size, Vector3 offset, Vector3Int id) {
         this.size = size;
         this.offset = offset;
+        this.id = id;
         SetupShaders();
     }
 
@@ -69,7 +71,7 @@ public class ChunkGenerator : MonoBehaviour
     }
 
     private void CheckForCollision() {
-        if (!Input.GetMouseButtonDown(0))
+        if (!Input.GetMouseButton(0))
             return;
         mousePosition = Input.mousePosition;
         Ray ray = Camera.main.ScreenPointToRay(mousePosition);
@@ -87,31 +89,9 @@ public class ChunkGenerator : MonoBehaviour
         triCountBuffer.GetData(intCountArr);
         intersections = new Vector3[intCountArr[0]];
         intersectionsBuffer.GetData(intersections);
-        Vector4[] debug = new Vector4[20];
-        debugBuffer.GetData(debug, 0, 0, 20);
+        ChunkManager.AddIntersections(intersections);
     }
 
-    private void OnDrawGizmos() {
-        if (intersections == null)
-            return;
-
-        float minDistance = float.MaxValue;
-        bool hasPos = false;
-        Vector3 minPos = Vector3.zero;
-        Vector3 origin = Camera.main.ScreenToWorldPoint(mousePosition);
-        foreach(Vector3 pos in intersections) {
-            float dis = Vector3.Distance(origin, pos);
-            if(dis < minDistance) {
-                minDistance = dis;
-                minPos = pos;
-                hasPos = true;
-            }
-        }
-        if (!hasPos)
-            return;
-
-        Gizmos.DrawSphere(minPos, 0.1f);
-    }
 
     private void OnRenderObject() {
         mat.SetPass(0);
@@ -137,6 +117,7 @@ public class ChunkGenerator : MonoBehaviour
 
         mainKernel = shader.FindKernel("CSMain");
         intersectKernel = shader.FindKernel("CSIntersections");
+        updateKernel = shader.FindKernel("CSUpdate");
         shader.SetBuffer(mainKernel, "Points", pointsBuffer);
         shader.SetBuffer(mainKernel, "Debug", debugBuffer);
     }
@@ -155,6 +136,24 @@ public class ChunkGenerator : MonoBehaviour
         mesh.triangles = meshTriangles.ToArray();
         mesh.RecalculateNormals();
         this.GetComponent<MeshFilter>().mesh = mesh;
+    }
+
+    public void UpdateChunk(Vector3 brushPos, float brushSize, float brushStrength, int split) {
+        shader.SetVector("brushPos", brushPos);
+        shader.SetVector("offset", offset);
+        shader.SetFloat("brushSize", brushSize);
+        shader.SetFloat("brushStrength", brushStrength);
+        shader.SetInt("ppA", PointGenerator.pointsPerAxis);
+        shader.SetBuffer(updateKernel, "Points", pointsBuffer);
+        shader.SetBuffer(updateKernel, "Debug", debugBuffer);
+        Vector3 adds = new Vector3(
+            id.x >= split - 1 ? (int)size.x : (int)size.x + 1,
+            id.y >= split - 1 ? (int)size.y : (int)size.y + 1,
+            id.z >= split - 1 ? (int)size.z : (int)size.z + 1
+        );
+        shader.Dispatch(updateKernel, (int)adds.x, (int)adds.y, (int)adds.z);
+
+        Generate();
     }
 
     private void OnDisable() {
