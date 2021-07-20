@@ -144,14 +144,20 @@ public class ChunkGenerator : MonoBehaviour
         shader.SetFloat("brushSize", brushSize);
         shader.SetFloat("brushStrength", brushStrength);
         shader.SetInt("ppA", PointGenerator.pointsPerAxis);
+        shader.SetInt("brushImgSize", 256);
+        shader.SetTexture(updateKernel, "Brush", ChunkManager.GetBrushTexture());
         shader.SetBuffer(updateKernel, "Points", pointsBuffer);
         shader.SetBuffer(updateKernel, "Debug", debugBuffer);
+
         Vector3 adds = new Vector3(
             id.x >= split - 1 ? (int)size.x : (int)size.x + 1,
             id.y >= split - 1 ? (int)size.y : (int)size.y + 1,
             id.z >= split - 1 ? (int)size.z : (int)size.z + 1
         );
         shader.Dispatch(updateKernel, (int)adds.x, (int)adds.y, (int)adds.z);
+
+        Vector4[] debug = new Vector4[GetBufferSize()];
+        debugBuffer.GetData(debug);
 
         Generate();
     }

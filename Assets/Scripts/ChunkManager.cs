@@ -8,9 +8,13 @@ public class ChunkManager : MonoBehaviour
 
     public Material mat;
     public ComputeShader shader;
+    public Texture2D brushTex;
     public float brushSize = 0.1f;
     public float brushStrength = 0.1f;
-    private int split = 2;
+    public RenderTexture brushTexture;
+
+
+    private int split = 1;
     private List<Vector3> intersections;
     private Vector3 closestIntersection;
     private bool hasIntersection = false;
@@ -103,5 +107,16 @@ public class ChunkManager : MonoBehaviour
 
     public static void AddIntersections(Vector3[] intersections) {
         instance._AddIntersections(intersections);
+    }
+
+    public static RenderTexture GetBrushTexture() {
+        if (instance.brushTexture)
+            return instance.brushTexture;
+
+        instance.brushTexture = RenderTexture.GetTemporary(256, 256);
+        instance.brushTexture.enableRandomWrite = true;
+        instance.brushTexture.Create();
+        Graphics.CopyTexture(instance.brushTex, instance.brushTexture);
+        return instance.brushTexture;
     }
 }

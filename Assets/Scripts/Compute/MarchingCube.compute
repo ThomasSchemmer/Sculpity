@@ -13,6 +13,7 @@ RWStructuredBuffer<Triangle> Triangles;
 AppendStructuredBuffer<float3> Intersections;
 RWStructuredBuffer<float4> Points;
 RWStructuredBuffer<float4> Debug;
+RWTexture2D<float4> Brush;
 uint groupCount, ppA, amountOfTriangles;
 float3 offset;
 float3 size;
@@ -21,6 +22,7 @@ float3 direction;
 float triangleCount;
 float brushSize, brushStrength;
 float3 brushPos;
+uint brushImgSize;
 
 float Det(float3 a, float3 b, float3 c) {
     return dot(a, cross(b, c));
@@ -115,9 +117,13 @@ void CSUpdate(uint3 totalID : SV_DispatchThreadID, uint3 threadID : SV_GroupThre
         groupID.z + offset.z
         );
     uint id = index.z * ppA * ppA + index.y * ppA + index.x;
-    float dis = distance(Points[id].xyz, brushPos);
-    float effect = 1 - min(dis / brushSize, 1);
-    Points[id].w = Points[id].w - effect / 10 * brushStrength;
+    float3 dis = Points[id].xyz - brushPos;
+    float3 effect = dis / brushSize;
+    float2 uv = float2(0.5, 0.5) + effect.xy * 0.5;
+    float2 vw = float2(0.5, 0.5) + effect.yz * 0.5;
+    float ef = min(Brush[brushImgSize * uv].x, Brush[brushImgSize * vw].x);
+    Points[id].w = Points[id].w - ef / 10 * brushStrength;
     Points[id].w = clamp(Points[id].w, -2, 2);
-    Debug[id] = float4(effect * brushStrength, effect, brushStrength, 0);
+    Debug[id] = float4(Brush[float2(0.5, 0.5)].xy, Brush[float2(0.5, 0.5) * brushImgSize].xy);
+
 }
