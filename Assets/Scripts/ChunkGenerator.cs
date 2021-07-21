@@ -63,10 +63,6 @@ public class ChunkGenerator : MonoBehaviour
 
         mat.SetBuffer("_Buffer", triangleBuffer);
 
-        Vector4[] debug = new Vector4[6];
-        debugBuffer.GetData(debug);
-        Triangle[] buffer = new Triangle[triangleCount];
-        triangleBuffer.GetData(buffer);
         //GenerateMesh(buffer);
     }
 
@@ -150,14 +146,11 @@ public class ChunkGenerator : MonoBehaviour
         shader.SetBuffer(updateKernel, "Debug", debugBuffer);
 
         Vector3 adds = new Vector3(
-            id.x >= split - 1 ? (int)size.x : (int)size.x + 1,
-            id.y >= split - 1 ? (int)size.y : (int)size.y + 1,
-            id.z >= split - 1 ? (int)size.z : (int)size.z + 1
+            id.x >= split - 1 ? (int)size.x + 1 : (int)size.x,      //
+            id.y >= split - 1 ? (int)size.y + 1 : (int)size.y,      //
+            id.z >= split - 1 ? (int)size.z + 1 : (int)size.z       //
         );
         shader.Dispatch(updateKernel, (int)adds.x, (int)adds.y, (int)adds.z);
-
-        Vector4[] debug = new Vector4[GetBufferSize()];
-        debugBuffer.GetData(debug);
 
         Generate();
     }

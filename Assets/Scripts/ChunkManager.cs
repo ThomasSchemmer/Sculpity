@@ -14,7 +14,7 @@ public class ChunkManager : MonoBehaviour
     public RenderTexture brushTexture;
 
 
-    private int split = 1;
+    private int split = 2;
     private List<Vector3> intersections;
     private Vector3 closestIntersection;
     private bool hasIntersection = false;
@@ -67,8 +67,6 @@ public class ChunkManager : MonoBehaviour
                         y >= split - 1 ? size - 1 : size,
                         z >= split - 1 ? size - 1 : size
                     );
-                   // offset = Vector3.one * 15;
-                   // ppAs = Vector3.one * 14;
                     GameObject chunk = new GameObject();
                     ChunkGenerator gen = chunk.AddComponent<ChunkGenerator>();
                     gen.shader = shader;
@@ -85,12 +83,11 @@ public class ChunkManager : MonoBehaviour
         foreach(Transform child in this.transform) {
             ChunkGenerator gen = child.GetComponent<ChunkGenerator>();
             float width = PointGenerator.instance.scale / split;
-            //TODO offset from index scale to worldscale
             Vector3 center = 
                 gen.offset / PointGenerator.pointsPerAxis * PointGenerator.instance.scale +             
                 Vector3.one * width / 2f;
             float dis = Vector3.Distance(center, closestIntersection);
-            if (dis > brushSize + width / 2f)
+            if (dis > brushSize + width)
                 continue;
             gen.UpdateChunk(closestIntersection, brushSize, brushStrength, split);                
         }
@@ -116,7 +113,8 @@ public class ChunkManager : MonoBehaviour
         instance.brushTexture = RenderTexture.GetTemporary(256, 256);
         instance.brushTexture.enableRandomWrite = true;
         instance.brushTexture.Create();
-        Graphics.CopyTexture(instance.brushTex, instance.brushTexture);
+        RenderTexture.active = instance.brushTexture;
+        Graphics.Blit(instance.brushTex, instance.brushTexture);
         return instance.brushTexture;
     }
 }

@@ -15,7 +15,7 @@ public class PointGenerator : MonoBehaviour
     public ComputeBuffer pointsBuffer, debugBuffer;
     public static int groupCount = 10;
     public static bool isDirty;
-    public static int pointsPerAxis = 10; 
+    public static int pointsPerAxis = 100; 
 
 
     private float _scale;

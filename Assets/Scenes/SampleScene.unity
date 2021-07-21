@@ -351,8 +351,8 @@ MonoBehaviour:
   mat: {fileID: 2100000, guid: 64809e5a76ac5974aa6152a8bbe5e2b9, type: 2}
   shader: {fileID: 7200000, guid: ab29f8be6b3e42f428ec88e6d122848f, type: 3}
   brushTex: {fileID: 2800000, guid: 0d1542ef21229ea40a8442b935dc432e, type: 3}
-  brushSize: 3
-  brushStrength: 0.1
+  brushSize: 0.1
+  brushStrength: 1.3
   brushTexture: {fileID: 0}
 --- !u!4 &483225124
 Transform:
