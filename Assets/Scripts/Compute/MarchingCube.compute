@@ -2,6 +2,7 @@
 #pragma kernel CSIntersections
 #pragma kernel CSUpdate
 #include "MarchTables.compute"
+#include "UnityCG.cginc"
 
 struct Triangle {
     float3 a;
@@ -118,13 +119,13 @@ void CSUpdate(uint3 totalID : SV_DispatchThreadID, uint3 threadID : SV_GroupThre
         );
     uint id = index.z * ppA * ppA + index.y * ppA + index.x;
     float3 dis = Points[id].xyz - brushPos;
-    /*
     float3 effect = dis / brushSize;
     float2 uv = float2(0.5, 0.5) + effect.xy * 0.5;
     float2 vw = float2(0.5, 0.5) + effect.yz * 0.5;
+    float2 uw = float2(0.5, 0.5) + effect.xz * 0.5;
     float ef = min(Brush[brushImgSize * uv].w, Brush[brushImgSize * vw].w);
-    */
-    float ef = 1 - min(distance(Points[id].xyz, brushPos) / brushSize, 1);
-    Points[id].w = Points[id].w - ef / 10 * brushStrength;
+    ef = min(ef, Brush[brushImgSize * uw].w);
+    float ef2 = 1 - min(distance(Points[id].xyz, brushPos) / brushSize, 1);
+    Points[id].w = Points[id].w - ef * unity_DeltaTime * brushStrength;
     Points[id].w = clamp(Points[id].w, -2, 2);
 }

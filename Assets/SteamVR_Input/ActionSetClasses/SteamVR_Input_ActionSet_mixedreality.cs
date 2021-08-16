@@ -48,5 +48,13 @@ namespace Valve.VR
                 return SteamVR_Actions.mixedreality_LeftTouchpad;
             }
         }
+        
+        public virtual SteamVR_Action_Pose RightControllerTop
+        {
+            get
+            {
+                return SteamVR_Actions.mixedreality_RightControllerTop;
+            }
+        }
     }
 }

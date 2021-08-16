@@ -37,7 +37,6 @@ public class ChunkGenerator : MonoBehaviour
         if (PointGenerator.isDirty || Input.GetKeyDown(KeyCode.Space)) {
             Generate();
         }
-        CheckForCollision();
     }
 
 
@@ -66,11 +65,7 @@ public class ChunkGenerator : MonoBehaviour
         //GenerateMesh(buffer);
     }
 
-    private void CheckForCollision() {
-        if (!Input.GetMouseButton(0))
-            return;
-        mousePosition = Input.mousePosition;
-        Ray ray = Camera.main.ScreenPointToRay(mousePosition);
+    public void CheckForCollision(Ray ray) {
         shader.SetVector("origin", ray.origin);
         shader.SetVector("direction", ray.direction);
         shader.SetFloat("triangleCount", triangleCount);
@@ -146,9 +141,9 @@ public class ChunkGenerator : MonoBehaviour
         shader.SetBuffer(updateKernel, "Debug", debugBuffer);
 
         Vector3 adds = new Vector3(
-            id.x >= split - 1 ? (int)size.x + 1 : (int)size.x,      //
-            id.y >= split - 1 ? (int)size.y + 1 : (int)size.y,      //
-            id.z >= split - 1 ? (int)size.z + 1 : (int)size.z       //
+            id.x >= split - 1 ? (int)size.x +1 : (int)size.x,      //
+            id.y >= split - 1 ? (int)size.y +1 : (int)size.y,      //
+            id.z >= split - 1 ? (int)size.z +1 : (int)size.z       //
         );
         shader.Dispatch(updateKernel, (int)adds.x, (int)adds.y, (int)adds.z);
 

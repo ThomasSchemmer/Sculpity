@@ -117,4 +117,15 @@ public class ChunkManager : MonoBehaviour
         Graphics.Blit(instance.brushTex, instance.brushTexture);
         return instance.brushTexture;
     }
+
+    public static void CheckForIntersections(Vector3 origin, Vector3 forward) {
+        if (!instance)
+            return;
+
+        Ray ray = new Ray(origin, forward);
+        foreach(Transform obj in instance.transform) {
+            ChunkGenerator gen = obj.GetComponent<ChunkGenerator>();
+            gen.CheckForCollision(ray);
+        }
+    }
 }

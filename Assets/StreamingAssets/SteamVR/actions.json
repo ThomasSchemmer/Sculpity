@@ -17,12 +17,16 @@
     {
       "name": "/actions/mixedreality/in/LeftTouchpad",
       "type": "vector2"
+    },
+    {
+      "name": "/actions/mixedreality/in/RightControllerTop",
+      "type": "pose"
     }
   ],
   "action_sets": [
     {
       "name": "/actions/mixedreality",
-      "usage": "single"
+      "usage": "leftright"
     }
   ],
   "default_bindings": [
