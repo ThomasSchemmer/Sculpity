@@ -27,6 +27,8 @@ namespace Valve.VR
         
         private static SteamVR_Action_Pose p_mixedreality_RightControllerTop;
         
+        private static SteamVR_Action_Boolean p_mixedreality_RightMenu;
+        
         public static SteamVR_Action_Pose mixedreality_RightController
         {
             get
@@ -67,6 +69,14 @@ namespace Valve.VR
             }
         }
         
+        public static SteamVR_Action_Boolean mixedreality_RightMenu
+        {
+            get
+            {
+                return SteamVR_Actions.p_mixedreality_RightMenu.GetCopy<SteamVR_Action_Boolean>();
+            }
+        }
+        
         private static void InitializeActionArrays()
         {
             Valve.VR.SteamVR_Input.actions = new Valve.VR.SteamVR_Action[] {
@@ -74,13 +84,15 @@ namespace Valve.VR
                     SteamVR_Actions.mixedreality_LeftController,
                     SteamVR_Actions.mixedreality_RightTrigger,
                     SteamVR_Actions.mixedreality_LeftTouchpad,
-                    SteamVR_Actions.mixedreality_RightControllerTop};
+                    SteamVR_Actions.mixedreality_RightControllerTop,
+                    SteamVR_Actions.mixedreality_RightMenu};
             Valve.VR.SteamVR_Input.actionsIn = new Valve.VR.ISteamVR_Action_In[] {
                     SteamVR_Actions.mixedreality_RightController,
                     SteamVR_Actions.mixedreality_LeftController,
                     SteamVR_Actions.mixedreality_RightTrigger,
                     SteamVR_Actions.mixedreality_LeftTouchpad,
-                    SteamVR_Actions.mixedreality_RightControllerTop};
+                    SteamVR_Actions.mixedreality_RightControllerTop,
+                    SteamVR_Actions.mixedreality_RightMenu};
             Valve.VR.SteamVR_Input.actionsOut = new Valve.VR.ISteamVR_Action_Out[0];
             Valve.VR.SteamVR_Input.actionsVibration = new Valve.VR.SteamVR_Action_Vibration[0];
             Valve.VR.SteamVR_Input.actionsPose = new Valve.VR.SteamVR_Action_Pose[] {
@@ -88,7 +100,8 @@ namespace Valve.VR
                     SteamVR_Actions.mixedreality_LeftController,
                     SteamVR_Actions.mixedreality_RightControllerTop};
             Valve.VR.SteamVR_Input.actionsBoolean = new Valve.VR.SteamVR_Action_Boolean[] {
-                    SteamVR_Actions.mixedreality_RightTrigger};
+                    SteamVR_Actions.mixedreality_RightTrigger,
+                    SteamVR_Actions.mixedreality_RightMenu};
             Valve.VR.SteamVR_Input.actionsSingle = new Valve.VR.SteamVR_Action_Single[0];
             Valve.VR.SteamVR_Input.actionsVector2 = new Valve.VR.SteamVR_Action_Vector2[] {
                     SteamVR_Actions.mixedreality_LeftTouchpad};
@@ -96,7 +109,8 @@ namespace Valve.VR
             Valve.VR.SteamVR_Input.actionsSkeleton = new Valve.VR.SteamVR_Action_Skeleton[0];
             Valve.VR.SteamVR_Input.actionsNonPoseNonSkeletonIn = new Valve.VR.ISteamVR_Action_In[] {
                     SteamVR_Actions.mixedreality_RightTrigger,
-                    SteamVR_Actions.mixedreality_LeftTouchpad};
+                    SteamVR_Actions.mixedreality_LeftTouchpad,
+                    SteamVR_Actions.mixedreality_RightMenu};
         }
         
         private static void PreInitActions()
@@ -106,6 +120,7 @@ namespace Valve.VR
             SteamVR_Actions.p_mixedreality_RightTrigger = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/mixedreality/in/RightTrigger")));
             SteamVR_Actions.p_mixedreality_LeftTouchpad = ((SteamVR_Action_Vector2)(SteamVR_Action.Create<SteamVR_Action_Vector2>("/actions/mixedreality/in/LeftTouchpad")));
             SteamVR_Actions.p_mixedreality_RightControllerTop = ((SteamVR_Action_Pose)(SteamVR_Action.Create<SteamVR_Action_Pose>("/actions/mixedreality/in/RightControllerTop")));
+            SteamVR_Actions.p_mixedreality_RightMenu = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/mixedreality/in/RightMenu")));
         }
     }
 }

@@ -20,10 +20,12 @@ public class ChunkManager : MonoBehaviour
     private bool hasIntersection = false;
     private int lastIntersectionFrame;
     private bool isIntersectionDirty;
+    private bool displayPreview;
 
     // Start is called before the first frame update
     void Start()
     {
+        displayPreview = true;
         instance = this;
         intersections = new List<Vector3>();
         GenerateChunks();
@@ -53,7 +55,11 @@ public class ChunkManager : MonoBehaviour
 
         if (!hasIntersection)
             return;
-        UpdateChunks();
+        if (displayPreview) {
+            PreviewChunks();
+        } else {
+            UpdateChunks();
+        }
     }
 
     private void GenerateChunks() {
@@ -93,6 +99,10 @@ public class ChunkManager : MonoBehaviour
         }
     }
 
+    private void PreviewChunks() {
+
+    }
+
     private void _AddIntersections(Vector3[] intersections) {
         if (Time.frameCount - 5 > lastIntersectionFrame) {
             this.intersections = new List<Vector3>();
@@ -118,6 +128,19 @@ public class ChunkManager : MonoBehaviour
         return instance.brushTexture;
     }
 
+    public static void SetBrushAs(Texture2D target) {
+        instance.brushTex = target;
+        if (instance.brushTexture) {
+            RenderTexture.ReleaseTemporary(instance.brushTexture);
+        }
+        instance.brushTexture = RenderTexture.GetTemporary(256, 256);
+        instance.brushTexture.enableRandomWrite = true;
+        instance.brushTexture.Create();
+        RenderTexture.active = instance.brushTexture;
+        Graphics.Blit(instance.brushTex, instance.brushTexture);
+
+    }
+
     public static void CheckForIntersections(Vector3 origin, Vector3 forward) {
         if (!instance)
             return;
@@ -127,5 +150,30 @@ public class ChunkManager : MonoBehaviour
             ChunkGenerator gen = obj.GetComponent<ChunkGenerator>();
             gen.CheckForCollision(ray);
         }
+    }
+
+    public static void SetBrushSize(float size) {
+        if (!instance)
+            return;
+
+        instance.brushSize = size;
+    }
+
+    public static void SetBrushStrength(float strength) {
+        if (!instance)
+            return;
+
+        instance.brushStrength = strength;
+    }
+
+    public static void ShowPreview(bool state) {
+        if (!instance)
+            return;
+
+        instance.displayPreview = state;
+    }
+
+    public static bool PreviewEnabled() {
+        return instance.displayPreview;
     }
 }

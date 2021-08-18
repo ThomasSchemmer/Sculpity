@@ -21,6 +21,10 @@
     {
       "name": "/actions/mixedreality/in/RightControllerTop",
       "type": "pose"
+    },
+    {
+      "name": "/actions/mixedreality/in/RightMenu",
+      "type": "boolean"
     }
   ],
   "action_sets": [

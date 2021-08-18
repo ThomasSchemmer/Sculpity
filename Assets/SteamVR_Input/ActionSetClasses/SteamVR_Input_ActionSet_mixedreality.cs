@@ -56,5 +56,13 @@ namespace Valve.VR
                 return SteamVR_Actions.mixedreality_RightControllerTop;
             }
         }
+        
+        public virtual SteamVR_Action_Boolean RightMenu
+        {
+            get
+            {
+                return SteamVR_Actions.mixedreality_RightMenu;
+            }
+        }
     }
 }

@@ -41,7 +41,6 @@ public class ChunkGenerator : MonoBehaviour
 
 
     public void Generate() {
-        Debug.Log("Generating");
         if (pointsBuffer == null)
             SetupShaders();
         if (!mat)
